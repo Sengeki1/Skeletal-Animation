@@ -25,6 +25,9 @@
 class MeshImporter {
 	public:
 		MeshImporter(const std::string& model_path, const std::string& material_path);
+		
+		void buffers()
+		void free();
 
 		std::vector<glm::vec2> m_uvs;
 		std::vector<Texture*> m_Textures;
