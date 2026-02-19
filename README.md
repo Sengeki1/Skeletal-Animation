@@ -1,3 +1,5 @@
+# Skeletal Animation
+
 When you load a model using Assimp:
 
 ```cpp
@@ -27,7 +29,7 @@ The `aiScene` property contains sub-properties such as:
         └── Arm
              └── Hand
 ```
-if the spine moves → `Arm` and `Hand` move too and each `aiNode` has the following properties:
+if the spine moves → `Arm` and `Hand` move too. And each `aiNode` has the following properties:
 
 ```cpp
   {
@@ -73,11 +75,11 @@ That vertex is 70% Arm, 30% Hand.
 
 **Note:** If all weights = 0 → vertex collapses to origin.
 
-When the model is also imported, the mesh is already in its bind pose meaning that the default pose created in blender for each bone already has some transformations answering the question: "*How do i move a vertex from model space into this bone's local space?*" because during animation, bones move relative to their bind pose.
+When the model is also imported, the mesh is already in its bind pose meaning that the default pose created in blender for each bone, already has some transformations answering the question: "*How do i move a vertex from model space into this bone's local space?*" because during animation, bones move relative to their bind pose.
 
 Model Space → Bone Local Space
 
-This is:
+This is applied by using the offset matrix of the given bone and its simply the inverse of it's global transformations:
 
   <p align="center">
     <b>Offset = Inverse(BindPoseGlobalTransform)</b>
@@ -115,11 +117,62 @@ and each channel has:
 
 ```cpp
   {
-    mPositionKeys;
-    mRotationKeys;
-    mScalingKeys;
+    aiVectorKey* mPositionKeys;
+    aiQuatKey* mRotationKeys;
+    aiVectorKey* mScalingKeys;
+    unsigned int mNumPositionKeys;
+    unsigned int mNumRotationKeys;
+    unsigned int mNumScalingKeys;
   }
 ```
+
+To interpolate between each keyframe we simply use the result of the `currentTime` of the application multiplied by the `mTicksPerSecond` where we converts seconds to ticks per second and then we truncate that value between 0 and the `mDuration`. 
+
+```cpp
+  float ticksPerSecond = (animation->mTicksPerSecond != 0) ? animation->mTicksPerSecond : 25.0f;
+  float timeInTicks = currentTime * ticksPerSecond;
+  float animationTime = fmod(timeInTicks, animation->mDuration);
+```
+
+where:
+
+```bash
+  animationTime ∈ [0, mDuration)
+```
+
+The resulting calculated animation time can be used to interpolate between the current keyframe and the next keyframe using the interpolation formula 
+
+```cpp
+  factor = (animationTime - previous_keyframe_time) / (next_keyframe_time - previous_keyframe_time);
+  position = start + factor * (end - start); // interpolation
+```
+
+where: 
+
+```bash
+  factor ∈ [0, 1]
+```
+
+As an example `mPositionKeys` is a list of all position keyframes of ONE bone across the whole animation. So if a bone moves during the animation, every time the animator set a position key, it gets stored there.
+
+each key contains:
+
+```cpp
+  {
+    double mTime; // (in ticks)
+    aiVector3D mValue; // (position vector)
+  }
+```
+
+So for one bone you might have:
+
+| Key Index | Time (ticks) | Position |
+| --------- | ------------ | -------- |
+| 0         | 0            | (0,0,0)  |
+| 1         | 20           | (5,0,0)  |
+| 2         | 40           | (8,0,0)  |
+| 3         | 50           | (10,0,0) |
+
 
 and for each transformation we will need to interpolate between them so that we have a smooth and correct transition for each keyframe.
 
