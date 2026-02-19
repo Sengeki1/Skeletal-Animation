@@ -117,6 +117,7 @@ and each channel has:
 
 ```cpp
   {
+    aiString 	mNodeName
     aiVectorKey* mPositionKeys;
     aiQuatKey* mRotationKeys;
     aiVectorKey* mScalingKeys;
