@@ -18,10 +18,9 @@
 
 
 #define ASSIMP_FLAGS ( \
-	aiProcess_Triangulate | \
-    aiProcess_GenSmoothNormals | \
-    aiProcess_JoinIdenticalVertices | \
-    aiProcess_PreTransformVertices)
+    aiProcess_Triangulate | \
+	aiProcess_GenSmoothNormals | \
+	aiProcess_JoinIdenticalVertices)
 
 class MeshImporter {
 	public:

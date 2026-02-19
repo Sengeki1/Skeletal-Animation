@@ -8,10 +8,11 @@ out vec3 Normals;
 out vec2 UVs;
 
 uniform mat4 model;
+uniform float scale;
 uniform mat4 projection;
 
 void main() {
-	gl_Position = projection * model * vec4(aPos, 1.0);
+	gl_Position = projection * model * vec4(aPos * scale, 1.0);
 	
 	UVs = aUVs;
 	Normals = aNormals;

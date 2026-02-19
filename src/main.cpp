@@ -22,10 +22,11 @@ int main()
     glfwSwapInterval(1);
     gladLoadGL();
 
-    glViewport(0, 0, 900.0f, 800.0f);
+    glViewport(0, 0, 900, 800);
 
     MeshImporter mesh("Assets/Models/Arms/source/arms.fbx", "Assets/Models/Arms/texture");
     Shader shader("default.vert", "default.frag");
+    shader.Create();
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -45,13 +46,14 @@ int main()
             mesh.m_VAO[i]->Bind();
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(10.0f));
-            model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f));
-            glm::mat4 projection = glm::perspective(glm::radians(90.0f), 900.0f / 800.0f, 0.1f, 1000.0f);
+            model = glm::translate(model, glm::vec3(0.0f, -0.6f, -0.5f));
+            model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::mat4 projection = glm::perspective(glm::radians(90.0f), 900.0f / 800.0f, 0.1f, 100.0f);
             glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+            glUniform1f(glGetUniformLocation(shader.ID, "scale"), 0.1f);
 
-            glDrawArrays(GL_TRIANGLES, 0, 1000);
+            glDrawElements(GL_TRIANGLES, mesh.m_numIndices[i], GL_UNSIGNED_INT, 0);
         }
 
         glfwSwapBuffers(window);
