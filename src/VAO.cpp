@@ -15,7 +15,12 @@ void VAO::Linking(
 ) {
 	glBindVertexArray(ID);
 	vbo->Bind();
-	glVertexAttribPointer(layout, size, type, GL_FALSE, stride, offset);
+	if (type != GL_INT) {
+		glVertexAttribPointer(layout, size, type, GL_FALSE, stride, offset);
+	}
+	else {
+		glVertexAttribIPointer(layout, size, type, stride, offset);
+	}
 	glEnableVertexAttribArray(layout);
 	vbo->Unbind();
 }

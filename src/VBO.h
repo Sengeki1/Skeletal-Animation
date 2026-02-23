@@ -19,6 +19,12 @@ class VBO
 		VBO(
 			const std::vector<glm::vec2>& vertices
 		);
+		VBO(
+			const std::vector<glm::vec4>& vertices
+		);
+		VBO(
+			const std::vector<glm::ivec4>& vertices
+		);
 		~VBO();
 		void Bind();
 		void Unbind();
